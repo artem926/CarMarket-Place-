@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="el" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>RideChoice – Μικρό Marketplace Αυτοκινήτων</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{ --bg:#0b0c10; --panel:#14161b; --muted:#8a8f98; --text:#f7f7f8; --accent:#4f8cff; --accent-2:#7c5cff; --ring:0 0 0 3px rgba(79,140,255,.35); --chip:#0e1015; --border:#1e2128; --surface:#0f1218; --surface-2:#0d1016 }
+    html[data-theme="light"]{ --bg:#f6f7fb; --panel:#ffffff; --muted:#5b6470; --text:#0b0c10; --accent:#325df2; --accent-2:#7a3bff; --chip:#f2f4f8; --border:#e5e8ef; --surface:#ffffff; --surface-2:#f7f9fd }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:linear-gradient(120deg,var(--bg),#0f1116 40%,var(--bg));color:var(--text);overflow-x:hidden}
+    html[data-theme="light"] body{background:var(--bg)}
+    .container{max-width:1200px;margin:0 auto;padding:24px}
+    header{display:flex;gap:12px;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:nowrap}
+    .logo{display:flex;align-items:center;gap:12px;font-weight:700;letter-spacing:.2px}
+    .logo .dot{width:10px;height:10px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent-2))}
+    .toolbar{display:flex;gap:8px;align-items:center;flex:1 1 auto;min-width:0;overflow-x:auto;white-space:nowrap;-webkit-overflow-scrolling:touch;max-width:100%}
+    .toolbar>*{flex:0 0 auto}
+    button,select,input[type="search"],input[type="number"],input[type="range"],input[type="email"],input[type="text"],textarea{background:var(--chip);color:var(--text);border:1px solid var(--border);padding:6px 8px;border-radius:10px;outline:none;font-size:13px}
+    .toggle{display:flex;align-items:center;gap:6px;padding:6px 8px}
+    #themeLabel{display:none}
+    .grid{display:grid;grid-template-columns:300px 1fr;gap:18px;align-items:start}
+    .panel.filters{align-self:start}
+    @media (max-width:920px){.grid{grid-template-columns:1fr}}
+    .panel{background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:16px;padding:16px;backdrop-filter:blur(6px)}
+    html[data-theme="light"] .panel{background:#fff}
+    .filters h3{margin:0 0 10px;font-size:14px;color:#cfd3da;letter-spacing:.3px}
+    html[data-theme="light"] .filters h3{color:#2b3038}
+    .filters .row{display:grid;gap:10px;margin-bottom:14px}
+    .dual{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .range{padding:10px 0}
+    .range small{display:flex;justify-content:space-between;color:var(--muted)}
+    .chips{display:flex;flex-wrap:wrap;gap:8px}
+    .chip{padding:6px 10px;border-radius:999px;border:1px solid #242936;background:var(--chip);cursor:pointer;font-size:12px;color:#cfd3da}
+    html[data-theme="light"] .chip{border-color:var(--border);color:#3a404a}
+    .chip.active{background:linear-gradient(135deg,rgba(79,140,255,.18),rgba(124,92,255,.18));border-color:#2c3344}
+    html[data-theme="light"] .chip.active{border-color:#bfc7ff}
+    .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+    @media (max-width:1100px){.cards{grid-template-columns:repeat(2,1fr)}}
+    @media (max-width:680px){.cards{grid-template-columns:1fr}}
+    .card{display:grid;grid-template-rows:auto 1fr;overflow:hidden;border-radius:16px;border:1px solid var(--border);background:var(--surface);position:relative}
+    .thumb{height:260px;background:#121621;display:block;position:relative}
+    html[data-theme="light"] .thumb{background:#eef2f7}
+    .thumb img{width:100%;height:100%;object-fit:cover;display:block}
+    .owner-badge{position:absolute;left:10px;top:10px;z-index:2;padding:6px 10px;border-radius:999px;border:1px solid var(--border);background:linear-gradient(135deg,rgba(124,92,255,.18),rgba(79,140,255,.18));font-size:12px}
+    .card .body{padding:14px;display:flex;flex-direction:column;gap:6px}
+    .meta{display:flex;gap:10px;flex-wrap:wrap;color:#cfd3da}
+    html[data-theme="light"] .meta{color:#5a6270}
+    .meta span{font-size:12px;background:var(--surface-2);border:1px solid var(--border);padding:6px 8px;border-radius:999px}
+    .title{font-weight:700;font-size:16px;margin:6px 0;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;min-height:38px}
+    .price{font-weight:800;font-size:18px;margin-top:auto;background:linear-gradient(135deg,var(--accent),var(--accent-2));-webkit-background-clip:text;background-clip:text;color:transparent}
+    .value-pill{font-size:12px;border:1px solid var(--border);background:var(--surface-2);padding:6px 8px;border-radius:999px}
+    .empty{opacity:.8;color:var(--muted);text-align:center;padding:24px}
+    footer{margin-top:18px;display:flex;justify-content:center;color:#fff9;font-size:12px}
+    .divider{height:1px;background:var(--border);margin:10px 0 16px}
+    .count{color:#cfd3da;font-size:13px}
+    html[data-theme="light"] .count{color:#3a404a}
+    .topbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+    .fav-btn{position:absolute;top:10px;right:10px;border-radius:999px;border:1px solid #2a2f3c;background:var(--surface-2);padding:6px 8px;font-size:12px;z-index:2}
+    .fav-btn.active{border-color:#6b76ff;background:linear-gradient(135deg,rgba(79,140,255,.18),rgba(124,92,255,.18))}
+    .pill{font-size:12px;padding:6px 8px;border:1px solid var(--border);border-radius:999px;background:var(--chip)}
+    .loadmore{display:block;margin:16px auto 0;}
+    .compare-bar{position:sticky;bottom:12px;display:none;gap:8px;align-items:center;padding:10px;border:1px solid var(--border);background:var(--surface);border-radius:14px;box-shadow:0 10px 30px rgba(0,0,0,.25);z-index:5}
+    .compare-item{display:flex;align-items:center;gap:8px;border:1px solid var(--border);padding:6px 8px;border-radius:10px;background:var(--surface-2);font-size:12px}
+    dialog{border:none;padding:0;border-radius:16px;width:min(960px,96vw);background:var(--surface);color:var(--text);border:1px solid var(--border)}
+    dialog::backdrop{background:rgba(0,0,0,.6)}
+    .modal{display:grid;grid-template-columns:1.3fr 1fr;gap:0;overflow:hidden}
+    @media (max-width:900px){.modal{grid-template-columns:1fr}}
+    .modal .m-thumb{background:#0e1015}
+    html[data-theme="light"] .modal .m-thumb{background:#eef2f7}
+    .modal .m-thumb img{width:100%;height:100%;object-fit:cover}
+    .modal .m-body{padding:16px}
+    .specs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}
+    .spec{border:1px solid var(--border);background:var(--surface-2);border-radius:12px;padding:10px;font-size:13px}
+    .m-actions{display:flex;justify-content:space-between;align-items:center;margin-top:10px}
+    .stats{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+    .stat{border:1px solid var(--border);background:var(--surface-2);padding:6px 10px;border-radius:999px;font-size:12px}
+    .compare-check{position:absolute;left:10px;top:44px;background:var(--surface-2);border:1px solid var(--border);padding:4px 6px;border-radius:10px;font-size:12px;z-index:2}
+    .compare-table{width:100%;border-collapse:separate;border-spacing:0}
+    .compare-table th,.compare-table td{border:1px solid var(--border);padding:8px 10px;text-align:left}
+    .compare-table th{background:var(--panel)}
+    .form{display:grid;gap:12px}
+    .form .row{display:grid;gap:8px}
+    .form .dual{grid-template-columns:1fr 1fr}
+    .hint{color:var(--muted);font-size:12px}
+    .total{font-weight:800;font-size:18px;background:linear-gradient(135deg,var(--accent),var(--accent-2));-webkit-background-clip:text;color:transparent}
+    .box{border:1px solid var(--border);background:var(--surface-2);border-radius:12px;padding:12px}
+    .actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="logo"><span class="dot"></span> RideChoice <span style="font-weight:500;color:#a7adba">• HTML/CSS/JS</span></div>
+      <div class="toolbar">
+        <button id="themeBtn" class="toggle" title="Εναλλαγή θέματος">🌓 <span id="themeLabel">Dark</span></button>
+        <input id="q" type="search" placeholder="Αναζήτηση (μάρκα, μοντέλο, χώρα)..." />
+        <button id="resetBtn" title="Καθαρισμός φίλτρων">Επαναφορά</button>
+        <button id="exportJson" class="pill" title="Εξαγωγή αποτελεσμάτων σε JSON">Export JSON</button>
+        <button id="exportCsv" class="pill" title="Εξαγωγή αποτελεσμάτων σε CSV">Export CSV</button>
+      </div>
+    </header>
+
+    <div class="grid">
+      <aside class="panel filters">
+        <h3>Φίλτρα</h3>
+        <div class="row dual">
+          <select id="brand"><option value="">Μάρκα</option></select>
+          <select id="type">
+            <option value="">Τύπος</option>
+            <option value="Hatchback">Hatchback</option>
+            <option value="Sedan">Sedan</option>
+            <option value="SUV">SUV</option>
+            <option value="Coupe">Coupe</option>
+            <option value="Pickup">Pickup</option>
+          </select>
+        </div>
+        <div class="row dual">
+          <input id="yearMin" type="number" placeholder="Έτος από" min="1980" max="2026" />
+          <input id="yearMax" type="number" placeholder="Έτος έως" min="1980" max="2026" />
+        </div>
+        <div class="row">
+          <label class="range">
+            <div style="display:flex;align-items:center;justify-content:space-between">
+              <span>Τιμή (έως)</span><strong id="priceLabel">€50,000</strong>
+            </div>
+            <input id="priceMax" type="range" min="2000" max="100000" step="1000" value="50000" />
+            <small><span>€2.000</span><span>€100.000</span></small>
+          </label>
+        </div>
+        <div class="row dual">
+          <input id="ccMin" type="number" placeholder="CC από" min="0" step="100" />
+          <input id="ccMax" type="number" placeholder="CC έως" min="0" step="100" />
+        </div>
+        <div class="row">
+          <label class="range">
+            <div style="display:flex;align-items:center;justify-content:space-between">
+              <span>Χιλιόμετρα (έως)</span><strong id="kmLabel">—</strong>
+            </div>
+            <input id="kmMax" type="range" min="0" max="300000" step="5000" value="300000" />
+            <small><span>0 km</span><span>300.000 km</span></small>
+          </label>
+        </div>
+        <div class="row">
+          <label class="pill">Μέγιστοι ιδιοκτήτες
+            <select id="ownersMax" style="margin-left:8px">
+              <option value="">—</option><option value="1">1</option><option value="2">2</option><option value="3">3</option>
+            </select>
+          </label>
+        </div>
+        <div class="row">
+          <h3>Χώρα</h3>
+          <div id="countryChips" class="chips"></div>
+        </div>
+        <div class="row">
+          <label class="pill"><input id="onlyFav" type="checkbox" style="vertical-align:-2px;margin-right:6px"> Μόνο αγαπημένα</label>
+        </div>
+      </aside>
+
+      <section class="panel">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
+          <div>
+            <h3 style="margin:0;color:#cfd3da">Αποτελέσματα</h3>
+            <div class="stats"><span class="stat">Μέσος όρος: <strong id="avgPrice">—</strong></span><span class="stat">Διάμεσος: <strong id="medianPrice">—</strong></span><span class="stat">Εύρος έτους: <strong id="yearRange">—</strong></span></div>
+          </div>
+          <div class="topbar">
+            <label class="pill">Ταξινόμηση
+              <select id="sort" style="margin-left:8px">
+                <option value="">—</option>
+                <option value="price_asc">Τιμή ↑</option>
+                <option value="price_desc">Τιμή ↓</option>
+                <option value="year_desc">Έτος (νεότερα)</option>
+                <option value="year_asc">Έτος (παλαιότερα)</option>
+                <option value="score_desc">Value Score</option>
+              </select>
+            </label>
+            <div class="count"><span id="count">24</span> οχήματα</div>
+          </div>
+        </div>
+        <div class="divider"></div>
+
+    
+        <div id="cards" class="cards">
+          <article class="card" data-id="1">
+            <span class="owner-badge">1ος ιδιοκτήτης</span>
+            <button class="fav-btn" data-id="1">❤</button>
+            <label class="compare-check"><input type="checkbox" data-compare="1"> Σύγκριση</label>
+            <a class="thumb" href="javascript:void(0)" aria-label="Toyota GR86" data-open="modal">
+              <img loading="lazy" src="./Car model/Gr86.png" alt="Toyota GR86"
+                   onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?><svg xmlns=&quot;http://www.w3.org/2000/svg&quot; width=&quot;800&quot; height=&quot;500&quot;><rect width=&quot;100%&quot; height=&quot;100%&quot; fill=&quot;#10131a&quot;/><text x=&quot;50%&quot; y=&quot;50%&quot; dominant-baseline=&quot;middle&quot; text-anchor=&quot;middle&quot; fill=&quot;#a8b0c0&quot; font-family=&quot;Inter, sans-serif&quot; font-size=&quot;24&quot;>No Image</text></svg>';"/>
+            </a>
+            <div class="body">
+              <div class="meta"><span>Toyota</span><span>Coupe</span><span>2022</span><span>Japan</span><span class="value-pill">Score: 9.1/10</span></div>
+              <div class="title">Toyota GR86</div>
+              <div class="price">€32.000</div>
+            </div>
+          </article>
+          <article class="card" data-id="2"><button class="fav-btn" data-id="2">❤</button><label class="compare-check"><input type="checkbox" data-compare="2"> Σύγκριση</label><a class="thumb" href="javascript:void(0)" aria-label="Ford Mustang" data-open="modal"><img loading="lazy" src="./Car model/Mustang.png" alt="Ford Mustang" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?><svg xmlns=&quot;http://www.w3.org/2000/svg&quot; width=&quot;800&quot; height=&quot;500&quot;><rect width=&quot;100%&quot; height=&quot;100%&quot; fill=&quot;#10131a&quot;/><text x=&quot;50%&quot; y=&quot;50%&quot; dominant-baseline=&quot;middle&quot; text-anchor=&quot;middle&quot; fill=&quot;#a8b0c0&quot; font-family=&quot;Inter, sans-serif&quot; font-size=&quot;24&quot;>No Image</text></svg>';"/></a><div class="body"><div class="meta"><span>Ford</span><span>Coupe</span><span>2019</span><span>USA</span><span class="value-pill">Score: 7.1/10</span></div><div class="title">Ford Mustang</div><div class="price">€42.000</div></div></article>
+          <article class="card" data-id="3"><button class="fav-btn" data-id="3">❤</button><label class="compare-check"><input type="checkbox" data-compare="3"> Σύγκριση</label><a class="thumb" href="javascript:void(0)" aria-label="Hyundai i10" data-open="modal"><img loading="lazy" src="./Car model/i10.png" alt="Hyundai i10" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?><svg xmlns=&quot;http://www.w3.org/2000/svg&quot; width=&quot;800&quot; height=&quot;500&quot;><rect width=&quot;100%&quot; height=&quot;100%&quot; fill=&quot;#10131a&quot;/><text x=&quot;50%&quot; y=&quot;50%&quot; dominant-baseline=&quot;middle&quot; text-anchor=&quot;middle&quot; fill=&quot;#a8b0c0&quot; font-family=&quot;Inter, sans-serif&quot; font-size=&quot;24&quot;>No Image</text></svg>';"/></a><div class="body"><div class="meta"><span>Hyundai</span><span>Hatchback</span><span>2015</span><span>South Korea</span><span class="value-pill">Score: 8.7/10</span></div><div class="title">Hyundai i10</div><div class="price">€6.500</div></div></article>
+          <article class="card" data-id="4"><span class="owner-badge">1ος ιδιοκτήτης</span><button class="fav-btn" data-id="4">❤</button><label class="compare-check"><input type="checkbox" data-compare="4"> Σύγκριση</label><a class="thumb" href="javascript:void(0)" aria-label="Audi A3" data-open="modal"><img loading="lazy" src="./Car model/A3.png" alt="Audi A3" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?><svg xmlns=&quot;http://www.w3.org/2000/svg&quot; width=&quot;800&quot; height=&quot;500&quot;><rect width=&quot;100%&quot; height=&quot;100%&quot; fill=&quot;#10131a&quot;/><text x=&quot;50%&quot; y=&quot;50%&quot; dominant-baseline=&quot;middle&quot; text-anchor=&quot;middle&quot; fill=&quot;#a8b0c0&quot; font-family=&quot;Inter, sans-serif&quot; font-size=&quot;24&quot;>No Image</text></svg>';"/></a><div class="body"><div class="meta"><span>Audi</span><span>Hatchback</span><span>2021</span><span>Germany</span><span class="value-pill">Score: 8.4/10</span></div><div class="title">Audi A3</div><div class="price">€28.000</div></div></article>
+          <article class="card" data-id="5"><button class="fav-btn" data-id="5">❤</button><label class="compare-check"><input type="checkbox" data-compare="5"> Σύγκριση</label><a class="thumb" href="javascript:void(0)" aria-label="BMW 3 Series" data-open="modal"><img loading="lazy" src="./Car model/3Series.png" alt="BMW 3 Series" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?><svg xmlns=&quot;http://www.w3.org/2000/svg&quot; width=&quot;800&quot; height=&quot;500&quot;><rect width=&quot;100%&quot; height=&quot;100%&quot; fill=&quot;#10131a&quot;/><text x=&quot;50%&quot; y=&quot;50%&quot; dominant-baseline=&quot;middle&quot; text-anchor=&quot;middle&quot; fill=&quot;#a8b0c0&quot; font-family=&quot;Inter, sans-serif&quot; font-size=&quot;24&quot;>No Image</text></svg>';"/></a><div class="body"><div class="meta"><span>BMW</span><span>Sedan</span><span>2020</span><span>Germany</span><span class="value-pill">Score: 8.0/10</span></div><div class="title">BMW 3 Series</div><div class="price">€36.000</div></div></article>
+          <article class="card" data-id="6"><button class="fav-btn" data-id="6">❤</button><label class="compare-check"><input type="checkbox" data-compare="6"> Σύγκριση</label><a class="thumb" href="javascript:void(0)" aria-label="Mercedes C-Class" data-open="modal"><img loading="lazy" src="./Car model/Cclass.png" alt="Mercedes C-Class" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?><svg xmlns=&quot;http://www.w3.org/2000/svg&quot; width=&quot;800&quot; height=&quot;500&quot;><rect width=&quot;100%&quot; height=&quot;100%&quot; fill=&quot;#10131a&quot;/><text x=&quot;50%&quot; y=&quot;50%&quot; dominant-baseline=&quot;middle&quot; text-anchor=&quot;middle&quot; fill=&quot;#a8b0c0&quot; font-family=&quot;Inter, sans-serif&quot; font-size=&quot;24&quot;>No Image</text></svg>';"/></a><div class="body"><div class="meta"><span>Mercedes</span><span>Sedan</span><span>2018</span><span>Germany</span><span class="value-pill">Score: 7.6/10</span></div><div class="title">Mercedes C-Class</div><div class="price">€30.000</div></div></article>
+          <article class="card" data-id="7"><button class="fav-btn" data-id="7">❤</button><label class="compare-check"><input type="checkbox" data-compare="7"> Σύγκριση</label><a class="thumb" href="javascript:void(0)" aria-label="Volkswagen Golf" data-open="modal"><img loading="lazy" src="./Car model/golf.png" alt="Volkswagen Golf" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?><svg xmlns=&quot;http://www.w3.org/2000/svg&quot; width=&quot;800&quot; height=&quot;500&quot;><rect width=&quot;100%&quot; height=&quot;100%&quot; fill=&quot;#10131a&quot;/><text x=&quot;50%&quot; y=&quot;50%&quot; dominant-baseline=&quot;middle&quot; text-anchor=&quot;middle&quot; fill=&quot;#a8b0c0&quot; font-family=&quot;Inter, sans-serif&quot; font-size=&quot;24&quot;>No Image</text></svg>';"/></a><div class="body"><div class="meta"><span>Volkswagen</span><span>Hatchback</span><span>2017</span><span>Germany</span><span class="value-pill">Score: 7.4/10</span></div><div class="title">Volkswagen Golf</div><div class="price">€15.000</div></div></article>
+          <article class="card" data-id="8"><button class="fav-btn" data-id="8">❤</button><label class="compare-check"><input type="checkbox" data-compare="8"> Σύγκριση</label><a class="thumb" href="javascript:void(0)" aria-label="Honda Civic" data-open="modal"><img loading="lazy" src="./Car model/Civic.png" alt="Honda Civic" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?><svg xmlns=&quot;http://www.w3.org/2000/svg&quot; width=&quot;800&quot; height=&quot;500&quot;><rect width=&quot;100%&quot; height=&quot;100%&quot; fill=&quot;#10131a&quot;/><text x=&quot;50%&quot; y=&quot;50%&quot; dominant-baseline=&quot;middle&quot; text-anchor=&quot;middle&quot; fill=&quot;#a8b0c0&quot; font-family=&quot;Inter, sans-serif&quot; font-size=&quot;24&quot;>No Image</text></svg>';"/></a><div class="body"><div class="meta"><span>Honda</span><span>Sedan</span><span>2019</span><span>Japan</span><span class="value-pill">Score: 8.2/10</span></div><div class="title">Honda Civic</div><div class="price">€20.000</div></div></article>
+          <article class="card" data-id="9"><button class="fav-btn" data-id="9">❤</button><label class="compare-check"><input type="checkbox" data-compare="9"> Σύγκριση</label><a class="thumb" href="javascript:void(0)" aria-label="Nissan Qashqai" data-open="modal"><img loading="lazy" src="./Car model/Qashqai.png" alt="Nissan Qashqai" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?><svg xmlns=&quot;http://www.w3.org/2000/svg&quot; width=&quot;800&quot; height=&quot;500&quot;><rect width=&quot;100%&quot; height=&quot;100%&quot; fill=&quot;#10131a&quot;/><text x=&quot;50%&quot; y=&quot;50%&quot; dominant-baseline=&quot;middle&quot; text-anchor=&quot;middle&quot; fill=&quot;#a8b0c0&quot; font-family=&quot;Inter, sans-serif&quot; font-size=&quot;24&quot;>No Image</text></svg>';"/></a><div class="body"><div class="meta"><span>Nissan</span><span>SUV</span><span>2018</span><span>Japan</span><span class="value-pill">Score: 7.9/10</span></div><div class="title">Nissan Qashqai</div><div class="price">€17.000</div></div></article>
+          <article class="card" data-id="10"><span class="owner-badge">1ος ιδιοκτήτης</span><button class="fav-btn" data-id="10">❤</button><label class="compare-check"><input type="checkbox" data-compare="10"> Σύγκριση</label><a class="thumb" href="javascript:void(0)" aria-label="Toyota Yaris" data-open="modal"><img loading="lazy" src="./Car model/Yaris.png" alt="Toyota Yaris" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?><svg xmlns=&quot;http://www.w3.org/2000/svg&quot; width=&quot;800&quot; height=&quot;500&quot;><rect width=&quot;100%&quot; height=&quot;100%&quot; fill=&quot;#10131a&quot;/><text x=&quot;50%&quot; y=&quot;50%&quot; dominant-baseline=&quot;middle&quot; text-anchor=&quot;middle&quot; fill=&quot;#a8b0c0&quot; font-family=&quot;Inter, sans-serif&quot; font-size=&quot;24&quot;>No Image</text></svg>';"/></a><div class="body"><div class="meta"><span>Toyota</span><span>Hatchback</span><span>2020</span><span>Japan</span><span class="value-pill">Score: 8.6/10</span></div><div class="title">Toyota Yaris</div><div class="price">€14.000</div></div></article>
+          <article class="card" data-id="11"><span class="owner-badge">1ος ιδιοκτήτης</span><button class="fav-btn" data-id="11">❤</button><label class="compare-check"><input type="checkbox" data-compare="11"> Σύγκριση</label><a class="thumb" href="javascript:void(0)" aria-label="Kia Sportage" data-open="modal"><img loading="lazy" src="./Car model/Sportage.png" alt="Kia Sportage" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?><svg xmlns=&quot;http://www.w3.org/2000/svg&quot; width=&quot;800&quot; height=&quot;500&quot;><rect width=&quot;100%&quot; height=&quot;100%&quot; fill=&quot;#10131a&quot;/><text x=&quot;50%&quot; y=&quot;50%&quot; dominant-baseline=&quot;middle&quot; text-anchor=&quot;middle&quot; fill=&quot;#a8b0c0&quot; font-family=&quot;Inter, sans-serif&quot; font-size=&quot;24&quot;>No Image</text></svg>';"/></a><div class="body"><div class="meta"><span>Kia</span><span>SUV</span><span>2021</span><span>South Korea</span><span class="value-pill">Score: 8.4/10</span></div><div class="title">Kia Sportage</div><div class="price">€23.000</div></div></article>
+          <article class="card" data-id="12"><button class="fav-btn" data-id="12">❤</button><label class="compare-check"><input type="checkbox" data-compare="12"> Σύγκριση</label><a class="thumb" href="javascript:void(0)" aria-label="Peugeot 208" data-open="modal"><img loading="lazy" src="./Car model/208.png" alt="Peugeot 208" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?><svg xmlns=&quot;http://www.w3.org/2000/svg&quot; width=&quot;800&quot; height=&quot;500&quot;><rect width=&quot;100%&quot; height=&quot;100%&quot; fill=&quot;#10131a&quot;/><text x=&quot;50%&quot; y=&quot;50%&quot; dominant-baseline=&quot;middle&quot; text-anchor=&quot;middle&quot; fill=&quot;#a8b0c0&quot; font-family=&quot;Inter, sans-serif&quot; font-size=&quot;24&quot;>No Image</text></svg>';"/></a><div class="body"><div class="meta"><span>Peugeot</span><span>Hatchback</span><span>2019</span><span>France</span><span class="value-pill">Score: 8.9/10</span></div><div class="title">Peugeot 208</div><div class="price">€11.000</div></div></article>
+          <article class="card" data-id="13"><span class="owner-badge">1ος ιδιοκτήτης</span><button class="fav-btn" data-id="13">❤</button><label class="compare-check"><input type="checkbox" data-compare="13"> Σύγκριση</label><a class="thumb" href="javascript:void(0)" aria-label="Renault Clio" data-open="modal"><img loading="lazy" src="./Car model/Clio.png" alt="Renault Clio" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?><svg xmlns=&quot;http://www.w3.org/2000/svg&quot; width=&quot;800&quot; height=&quot;500&quot;><rect width=&quot;100%&quot; height=&quot;100%&quot; fill=&quot;#10131a&quot;/><text x=&quot;50%&quot; y=&quot;50%&quot; dominant-baseline=&quot;middle&quot; text-anchor=&quot;middle&quot; fill=&quot;#a8b0c0&quot; font-family=&quot;Inter, sans-serif&quot; font-size=&quot;24&quot;>No Image</text></svg>';"/></a><div class="body"><div class="meta"><span>Renault</span><span>Hatchback</span><span>2020</span><span>France</span><span class="value-pill">Score: 8.8/10</span></div><div class="title">Renault Clio</div><div class="price">€12.000</div></div></article>
+          <article class="card" data-id="14"><button class="fav-btn" data-id="14">❤</button><label class="compare-check"><input type="checkbox" data-compare="14"> Σύγκριση</label><a class="thumb" href="javascript:void(0)" aria-label="Mazda MX-5" data-open="modal"><img loading="lazy" src="./Car model/Mazda.png" alt="Mazda MX-5" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?><svg xmlns=&quot;http://www.w3.org/2000/svg&quot; width=&quot;800&quot; height=&quot;500&quot;><rect width=&quot;100%&quot; height=&quot;100%&quot; fill=&quot;#10131a&quot;/><text x=&quot;50%&quot; y=&quot;50%&quot; dominant-baseline=&quot;middle&quot; text-anchor=&quot;middle&quot; fill=&quot;#a8b0c0&quot; font-family=&quot;Inter, sans-serif&quot; font-size=&quot;24&quot;>No Image</text></svg>';"/></a><div class="body"><div class="meta"><span>Mazda</span><span>Coupe</span><span>2016</span><span>Japan</span><span class="value-pill">Score: 8.3/10</span></div><div class="title">Mazda MX-5</div><div class="price">€18.000</div></div></article>
+          <article class="card" data-id="15"><span class="owner-badge">1ος ιδιοκτήτης</span><button class="fav-btn" data-id="15">❤</button><label class="compare-check"><input type="checkbox" data-compare="15"> Σύγκριση</label><a class="thumb" href="javascript:void(0)" aria-label="Toyota RAV4" data-open="modal"><img loading="lazy" src="./Car model/RAV.png" alt="Toyota RAV4" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?><svg xmlns=&quot;http://www.w3.org/2000/svg&quot; width=&quot;800&quot; height=&quot;500&quot;><rect width=&quot;100%&quot; height=&quot;100%&quot; fill=&quot;#10131a&quot;/><text x=&quot;50%&quot; y=&quot;50%&quot; dominant-baseline=&quot;middle&quot; text-anchor=&quot;middle&quot; fill=&quot;#a8b0c0&quot; font-family=&quot;Inter, sans-serif&quot; font-size=&quot;24&quot;>No Image</text></svg>';"/></a><div class="body"><div class="meta"><span>Toyota</span><span>SUV</span><span>2022</span><span>Japan</span><span class="value-pill">Score: 8.7/10</span></div><div class="title">Toyota RAV4</div><div class="price">€35.000</div></div></article>
+          <article class="card" data-id="16"><span class="owner-badge">1ος ιδιοκτήτης</span><button class="fav-btn" data-id="16">❤</button><label class="compare-check"><input type="checkbox" data-compare="16"> Σύγκριση</label><a class="thumb" href="javascript:void(0)" aria-label="Ford Ranger" data-open="modal"><img loading="lazy" src="./Car model/Ranger.png" alt="Ford Ranger" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?><svg xmlns=&quot;http://www.w3.org/2000/svg&quot; width=&quot;800&quot; height=&quot;500&quot;><rect width=&quot;100%&quot; height=&quot;100%&quot; fill=&quot;#10131a&quot;/><text x=&quot;50%&quot; y=&quot;50%&quot; dominant-baseline=&quot;middle&quot; text-anchor=&quot;middle&quot; fill=&quot;#a8b0c0&quot; font-family=&quot;Inter, sans-serif&quot; font-size=&quot;24&quot;>No Image</text></svg>';"/></a><div class="body"><div class="meta"><span>Ford</span><span>Pickup</span><span>2021</span><span>USA</span><span class="value-pill">Score: 8.2/10</span></div><div class="title">Ford Ranger</div><div class="price">€28.000</div></div></article>
+          <article class="card" data-id="17"><button class="fav-btn" data-id="17">❤</button><label class="compare-check"><input type="checkbox" data-compare="17"> Σύγκριση</label><a class="thumb" href="javascript:void(0)" aria-label="Skoda Octavia" data-open="modal"><img loading="lazy" src="./Car model/Octavia.png" alt="Skoda Octavia" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?><svg xmlns=&quot;http://www.w3.org/2000/svg&quot; width=&quot;800&quot; height=&quot;500&quot;><rect width=&quot;100%&quot; height=&quot;100%&quot; fill=&quot;#10131a&quot;/><text x=&quot;50%&quot; y=&quot;50%&quot; dominant-baseline=&quot;middle&quot; text-anchor=&quot;middle&quot; fill=&quot;#a8b0c0&quot; font-family=&quot;Inter, sans-serif&quot; font-size=&quot;24&quot;>No Image</text></svg>';"/></a><div class="body"><div class="meta"><span>Skoda</span><span>Sedan</span><span>2018</span><span>Czech Republic</span><span class="value-pill">Score: 8.5/10</span></div><div class="title">Skoda Octavia</div><div class="price">€13.000</div></div></article>
+          <article class="card" data-id="18"><button class="fav-btn" data-id="18">❤</button><label class="compare-check"><input type="checkbox" data-compare="18"> Σύγκριση</label><a class="thumb" href="javascript:void(0)" aria-label="Seat Leon" data-open="modal"><img loading="lazy" src="./Car model/leon.png" alt="Seat Leon" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?><svg xmlns=&quot;http://www.w3.org/2000/svg&quot; width=&quot;800&quot; height=&quot;500&quot;><rect width=&quot;100%&quot; height=&quot;100%&quot; fill=&quot;#10131a&quot;/><text x=&quot;50%&quot; y=&quot;50%&quot; dominant-baseline=&quot;middle&quot; text-anchor=&quot;middle&quot; fill=&quot;#a8b0c0&quot; font-family=&quot;Inter, sans-serif&quot; font-size=&quot;24&quot;>No Image</text></svg>';"/></a><div class="body"><div class="meta"><span>Seat</span><span>Hatchback</span><span>2019</span><span>Spain</span><span class="value-pill">Score: 8.6/10</span></div><div class="title">Seat Leon</div><div class="price">€13.500</div></div></article>
+          <article class="card" data-id="19"><span class="owner-badge">1ος ιδιοκτήτης</span><button class="fav-btn" data-id="19">❤</button><label class="compare-check"><input type="checkbox" data-compare="19"> Σύγκριση</label><a class="thumb" href="javascript:void(0)" aria-label="Volvo XC40" data-open="modal"><img loading="lazy" src="./Car model/XC40.png" alt="Volvo XC40" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?><svg xmlns=&quot;http://www.w3.org/2000/svg&quot; width=&quot;800&quot; height=&quot;500&quot;><rect width=&quot;100%&quot; height=&quot;100%&quot; fill=&quot;#10131a&quot;/><text x=&quot;50%&quot; y=&quot;50%&quot; dominant-baseline=&quot;middle&quot; text-anchor=&quot;middle&quot; fill=&quot;#a8b0c0&quot; font-family=&quot;Inter, sans-serif&quot; font-size=&quot;24&quot;>No Image</text></svg>';"/></a><div class="body"><div class="meta"><span>Volvo</span><span>SUV</span><span>2020</span><span>Sweden</span><span class="value-pill">Score: 8.1/10</span></div><div class="title">Volvo XC40</div><div class="price">€32.000</div></div></article>
+          <article class="card" data-id="20"><button class="fav-btn" data-id="20">❤</button><label class="compare-check"><input type="checkbox" data-compare="20"> Σύγκριση</label><a class="thumb" href="javascript:void(0)" aria-label="Alfa Romeo Giulia" data-open="modal"><img loading="lazy" src="./Car model/Giulia.png" alt="Alfa Romeo Giulia" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?><svg xmlns=&quot;http://www.w3.org/2000/svg&quot; width=&quot;800&quot; height=&quot;500&quot;><rect width=&quot;100%&quot; height=&quot;100%&quot; fill=&quot;#10131a&quot;/><text x=&quot;50%&quot; y=&quot;50%&quot; dominant-baseline=&quot;middle&quot; text-anchor=&quot;middle&quot; fill=&quot;#a8b0c0&quot; font-family=&quot;Inter, sans-serif&quot; font-size=&quot;24&quot;>No Image</text></svg>';"/></a><div class="body"><div class="meta"><span>Alfa Romeo</span><span>Sedan</span><span>2017</span><span>Italy</span><span class="value-pill">Score: 8.4/10</span></div><div class="title">Alfa Romeo Giulia</div><div class="price">€22.000</div></div></article>
+          <article class="card" data-id="21"><span class="owner-badge">1ος ιδιοκτήτης</span><button class="fav-btn" data-id="21">❤</button><label class="compare-check"><input type="checkbox" data-compare="21"> Σύγκριση</label><a class="thumb" href="javascript:void(0)" aria-label="Tesla Model 3" data-open="modal"><img loading="lazy" src="./Car model/Model3.png" alt="Tesla Model 3" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?><svg xmlns=&quot;http://www.w3.org/2000/svg&quot; width=&quot;800&quot; height=&quot;500&quot;><rect width=&quot;100%&quot; height=&quot;100%&quot; fill=&quot;#10131a&quot;/><text x=&quot;50%&quot; y=&quot;50%&quot; dominant-baseline=&quot;middle&quot; text-anchor=&quot;middle&quot; fill=&quot;#a8b0c0&quot; font-family=&quot;Inter, sans-serif&quot; font-size=&quot;24&quot;>No Image</text></svg>';"/></a><div class="body"><div class="meta"><span>Tesla</span><span>Sedan</span><span>2021</span><span>USA</span><span class="value-pill">Score: 8.9/10</span></div><div class="title">Tesla Model 3</div><div class="price">€38.000</div></div></article>
+          <article class="card" data-id="22"><button class="fav-btn" data-id="22">❤</button><label class="compare-check"><input type="checkbox" data-compare="22"> Σύγκριση</label><a class="thumb" href="javascript:void(0)" aria-label="Subaru BRZ" data-open="modal"><img loading="lazy" src="./Car model/BRZ.png" alt="Subaru BRZ" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?><svg xmlns=&quot;http://www.w3.org/2000/svg&quot; width=&quot;800&quot; height=&quot;500&quot;><rect width=&quot;100%&quot; height=&quot;100%&quot; fill=&quot;#10131a&quot;/><text x=&quot;50%&quot; y=&quot;50%&quot; dominant-baseline=&quot;middle&quot; text-anchor=&quot;middle&quot; fill=&quot;#a8b0c0&quot; font-family=&quot;Inter, sans-serif&quot; font-size=&quot;24&quot;>No Image</text></svg>';"/></a><div class="body"><div class="meta"><span>Subaru</span><span>Coupe</span><span>2017</span><span>Japan</span><span class="value-pill">Score: 8.3/10</span></div><div class="title">Subaru BRZ</div><div class="price">€21.000</div></div></article>
+          <article class="card" data-id="23"><button class="fav-btn" data-id="23">❤</button><label class="compare-check"><input type="checkbox" data-compare="23"> Σύγκριση</label><a class="thumb" href="javascript:void(0)" aria-label="Dacia Duster" data-open="modal"><img loading="lazy" src="./Car model/Duster.png" alt="Dacia Duster" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?><svg xmlns=&quot;http://www.w3.org/2000/svg&quot; width=&quot;800&quot; height=&quot;500&quot;><rect width=&quot;100%&quot; height=&quot;100%&quot; fill=&quot;#10131a&quot;/><text x=&quot;50%&quot; y=&quot;50%&quot; dominant-baseline=&quot;middle&quot; text-anchor=&quot;middle&quot; fill=&quot;#a8b0c0&quot; font-family=&quot;Inter, sans-serif&quot; font-size=&quot;24&quot;>No Image</text></svg>';"/></a><div class="body"><div class="meta"><span>Dacia</span><span>SUV</span><span>2019</span><span>Romania</span><span class="value-pill">Score: 9.0/10</span></div><div class="title">Dacia Duster</div><div class="price">€12.000</div></div></article>
+          <article class="card" data-id="24"><span class="owner-badge">1ος ιδιοκτήτης</span><button class="fav-btn" data-id="24">❤</button><label class="compare-check"><input type="checkbox" data-compare="24"> Σύγκριση</label><a class="thumb" href="javascript:void(0)" aria-label="Toyota Corolla" data-open="modal"><img loading="lazy" src="./Car model/Corolla" alt="Toyota Corolla" onerror="this.onerror=null;this.src='./Car model/corolla.png';"/></a><div class="body"><div class="meta"><span>Toyota</span><span>Coupe</span><span>2019</span><span>Japan</span><span class="value-pill">Score: 8.6/10</span></div><div class="title">Toyota Corolla</div><div class="price">€18.000</div></div></article>
+        </div>
+        <div id="empty" class="empty" style="display:none">Δεν βρέθηκαν οχήματα με αυτά τα φίλτρα.</div>
+        <button id="loadMore" class="loadmore" style="display:none">Load more</button>
+
+        <div id="compareBar" class="compare-bar">
+          <strong>Σύγκριση:</strong>
+          <div id="compareItems" style="display:flex;gap:6px;flex-wrap:wrap"></div>
+          <span style="flex:1"></span>
+          <button id="compareOpen" class="pill">Άνοιγμα πίνακα</button>
+          <button id="compareClear" class="pill">Καθαρισμός</button>
+        </div>
+      </section>
+    </div>
+
+    <footer>RideChoice • Demo για Portfolio – φτιαγμένο με HTML, CSS & JS</footer>
+  </div>
+
+  <dialog id="carModal">
+    <div class="modal">
+      <div class="m-thumb"><img id="mImg" alt="car"></div>
+      <div class="m-body">
+        <h2 id="mTitle" style="margin:0 0 6px"></h2>
+        <div class="meta" id="mMeta" style="margin-bottom:8px"></div>
+        <div class="specs">
+          <div class="spec"><strong>HP:</strong> <span id="mHp"></span></div>
+          <div class="spec"><strong>Fuel:</strong> <span id="mFuel"></span></div>
+          <div class="spec"><strong>0-100:</strong> <span id="mZero"></span></div>
+          <div class="spec"><strong>Κιβώτιο:</strong> <span id="mGear"></span></div>
+          <div class="spec"><strong>CC:</strong> <span id="mCc"></span></div>
+          <div class="spec"><strong>KM:</strong> <span id="mKm"></span></div>
+          <div class="spec"><strong>Ιδιοκτήτες:</strong> <span id="mOwners"></span></div>
+          <div class="spec"><strong>Value Score:</strong> <span id="mScore"></span></div>
+        </div>
+        <p id="mDesc" style="line-height:1.5; color:var(--muted)"></p>
+        <div class="m-actions">
+          <div class="price" id="mPrice"></div>
+          <div style="display:flex; gap:8px; flex-wrap:wrap">
+            <button id="buyBtn" class="pill">🛒 Αγορά</button>
+            <button id="loanBtn" class="pill">💳 Δάνειο</button>
+            <button id="mFav" class="pill">❤ Αγαπημένο</button>
+            <form method="dialog"><button class="pill">Κλείσιμο</button></form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog id="compareModal">
+    <div class="modal" style="grid-template-columns:1fr">
+      <div class="m-body">
+        <h2 style="margin:0 0 10px">Σύγκριση επιλεγμένων</h2>
+        <div id="compareTableWrap" style="overflow:auto"></div>
+        <div class="m-actions">
+          <small style="color:var(--muted)">Μέχρι 3 οχήματα τη φορά.</small>
+          <form method="dialog"><button class="pill">Κλείσιμο</button></form>
+        </div>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog id="checkoutModal">
+    <div class="modal" style="grid-template-columns:1fr">
+      <div class="m-body">
+        <h2 id="coTitle" style="margin:0 0 10px">Αγορά οχήματος</h2>
+        <div class="box" style="margin-bottom:10px">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
+            <div id="coCar" class="meta"></div>
+            <div class="total">Σύνολο: <span id="coTotal">—</span></div>
+          </div>
+        </div>
+        <div id="loanBox" class="box" style="display:none">
+          <div class="row dual">
+            <label>Προκαταβολή (€)<input id="coDown" type="number" min="0" step="100" value="0"></label>
+            <label>Επιτόκιο (% ετησίως)<input id="coRate" type="number" min="0" step="0.1" value="6.5"></label>
+          </div>
+          <div class="row dual">
+            <label>Διάρκεια (μήνες)<input id="coMonths" type="number" min="6" step="6" value="60"></label>
+            <label>Μηνιαία δόση<input id="coMonthly" type="text" disabled></label>
+          </div>
+          <p class="hint">Υπολογισμός ενδεικτικός, χωρίς έξοδα φακέλου/ασφαλειών.</p>
+        </div>
+        <form id="checkoutForm" class="form">
+          <div class="row dual">
+            <label>Ονοματεπώνυμο<input id="coName" type="text" placeholder="Π.χ. Γιώργος Αρτεμάκης" required></label>
+            <label>Email<input id="coEmail" type="email" placeholder="you@example.com" required></label>
+          </div>
+          <div class="row"><label>Τηλέφωνο<input id="coPhone" type="text" placeholder="69xxxxxxxx" required></label></div>
+          <div class="actions">
+            <button type="button" id="coCancel" class="pill">Άκυρο</button>
+            <button type="submit" id="coSubmit" class="pill">Ολοκλήρωση</button>
+          </div>
+          <p class="hint">Με την αποστολή αποδέχεσαι την επεξεργασία δεδομένων για επικοινωνία προσφοράς.</p>
+        </form>
+      </div>
+    </div>
+  </dialog>
+
+  <script>
+    const fmt = new Intl.NumberFormat('el-GR');
+    const kmFmt = v => v==null ? '—' : (fmt.format(v)+' km');
+    const ccFmt = v => v==null ? '—' : (fmt.format(v)+' cc');
+    const ownFmt = v => v==null ? '—' : String(v);
+    const Title = s => s ? s.trim().split(' ').filter(Boolean).map(w => w ? w[0].toUpperCase()+w.slice(1).toLowerCase() : '').join(' ') : '';
+
+    const RAW_CARS = [
+  {id:1, brand:'Toyota', model:'GR86', type:'Coupe', year:2022, price:32000, country:'Japan', hp:234, fuel:'Petrol', zeroTo100:'6.3s', gearbox:'Manual', cc:2400, km:18000, owners:1, desc:'Αθλητικό Coupe', img:'Gr86.png'},
+  {id:2, brand:'Ford', model:'Mustang', type:'Coupe', year:2019, price:42000, country:'USA', hp:450, fuel:'Petrol', zeroTo100:'4.6s', gearbox:'Auto', cc:5000, km:42000, owners:2, desc:'Κλασικό Muscle Car', img:'Mustang.png'},
+  {id:3, brand:'Hyundai', model:'i10', type:'Hatchback', year:2015, price:6500, country:'South Korea', hp:66, fuel:'Petrol', zeroTo100:'14.6s', gearbox:'Manual', cc:1000, km:97000, owners:2, desc:'Οικονομικό City Car', img:'i10.png'},
+  {id:4, brand:'Audi', model:'A3', type:'Hatchback', year:2021, price:28000, country:'Germany', hp:150, fuel:'Petrol', zeroTo100:'8.4s', gearbox:'Auto', cc:1500, km:26000, owners:1, desc:'Premium Hatchback', img:'A3.png'},
+  {id:5, brand:'BMW', model:'3 Series', type:'Sedan', year:2020, price:36000, country:'Germany', hp:190, fuel:'Diesel', zeroTo100:'7.1s', gearbox:'Auto', cc:2000, km:52000, owners:2, desc:'Εκτελεστικό Sedan', img:'3Series.png'},
+  {id:6, brand:'Mercedes', model:'C-Class', type:'Sedan', year:2018, price:30000, country:'Germany', hp:184, fuel:'Petrol', zeroTo100:'7.7s', gearbox:'Auto', cc:2000, km:78000, owners:2, desc:'Business Sedan', img:'Cclass.png'},
+  {id:7, brand:'Volkswagen', model:'Golf', type:'Hatchback', year:2017, price:15000, country:'Germany', hp:110, fuel:'Petrol', zeroTo100:'9.9s', gearbox:'Manual', cc:1200, km:99000, owners:3, desc:'Ισορροπημένο Hatchback', img:'golf.png'},
+  {id:8, brand:'Honda', model:'Civic', type:'Sedan', year:2019, price:20000, country:'Japan', hp:182, fuel:'Petrol', zeroTo100:'7.7s', gearbox:'CVT', cc:1500, km:63000, owners:2, desc:'Αξιόπιστο Sedan', img:'Civic.png'},
+  {id:9, brand:'Nissan', model:'Qashqai', type:'SUV', year:2018, price:17000, country:'Japan', hp:140, fuel:'Petrol', zeroTo100:'10.5s', gearbox:'Manual', cc:1300, km:85000, owners:2, desc:'Οικογενειακό SUV', img:'Qashqai.png'},
+  {id:10, brand:'Toyota', model:'Yaris', type:'Hatchback', year:2020, price:14000, country:'Japan', hp:120, fuel:'Hybrid', zeroTo100:'9.7s', gearbox:'e-CVT', cc:1500, km:45000, owners:1, desc:'Υβριδικό Compact', img:'Yaris.png'},
+  {id:11, brand:'Kia', model:'Sportage', type:'SUV', year:2021, price:23000, country:'South Korea', hp:150, fuel:'Petrol', zeroTo100:'9.5s', gearbox:'Auto', cc:1600, km:39000, owners:1, desc:'Σύγχρονο SUV', img:'Sportage.png'},
+  {id:12, brand:'Peugeot', model:'208', type:'Hatchback', year:2019, price:11000, country:'France', hp:100, fuel:'Petrol', zeroTo100:'10.1s', gearbox:'Manual', cc:1200, km:68000, owners:2, desc:'Κομψό Compact', img:'208.png'},
+  {id:13, brand:'Renault', model:'Clio', type:'Hatchback', year:2020, price:12000, country:'France', hp:100, fuel:'Petrol', zeroTo100:'10.5s', gearbox:'Manual', cc:1000, km:59000, owners:1, desc:'Πρακτικό Hatchback', img:'Clio.png'},
+  {id:14, brand:'Mazda', model:'MX-5', type:'Coupe', year:2016, price:18000, country:'Japan', hp:160, fuel:'Petrol', zeroTo100:'7.3s', gearbox:'Manual', cc:2000, km:72000, owners:2, desc:'Roadster Απόλαυση', img:'Mazda.png'},
+  {id:15, brand:'Toyota', model:'RAV4', type:'SUV', year:2022, price:35000, country:'Japan', hp:218, fuel:'Hybrid', zeroTo100:'8.1s', gearbox:'e-CVT', cc:2500, km:22000, owners:1, desc:'Υβριδικό SUV', img:'RAV.png'},
+  {id:16, brand:'Ford', model:'Ranger', type:'Pickup', year:2021, price:28000, country:'USA', hp:170, fuel:'Diesel', zeroTo100:'10.0s', gearbox:'Auto', cc:2000, km:54000, owners:1, desc:'Επαγγελματικό Pickup', img:'Ranger.png'},
+  {id:17, brand:'Skoda', model:'Octavia', type:'Sedan', year:2018, price:13000, country:'Czech Republic', hp:150, fuel:'Petrol', zeroTo100:'8.2s', gearbox:'DSG', cc:1400, km:98000, owners:2, desc:'Ευρύχωρο Sedan', img:'Octavia.png'},
+  {id:18, brand:'Seat', model:'Leon', type:'Hatchback', year:2019, price:13500, country:'Spain', hp:130, fuel:'Petrol', zeroTo100:'9.2s', gearbox:'Manual', cc:1400, km:76000, owners:2, desc:'Σπορ Hatchback', img:'leon.png'},
+  {id:19, brand:'Volvo', model:'XC40', type:'SUV', year:2020, price:32000, country:'Sweden', hp:190, fuel:'Petrol', zeroTo100:'7.9s', gearbox:'Auto', cc:2000, km:51000, owners:1, desc:'Premium SUV', img:'XC40.png'},
+  {id:20, brand:'Alfa Romeo', model:'Giulia', type:'Sedan', year:2017, price:22000, country:'Italy', hp:200, fuel:'Petrol', zeroTo100:'6.6s', gearbox:'Auto', cc:2000, km:73000, owners:2, desc:'Ιταλικό Στυλ', img:'Giulia.png'},
+  {id:21, brand:'Tesla', model:'Model 3', type:'Sedan', year:2021, price:38000, country:'USA', hp:283, fuel:'Electric', zeroTo100:'5.6s', gearbox:'Single-speed', cc:null, km:31000, owners:1, desc:'Ηλεκτρικό Sedan', img:'Model3.png'},
+  {id:22, brand:'Subaru', model:'BRZ', type:'Coupe', year:2017, price:21000, country:'Japan', hp:205, fuel:'Petrol', zeroTo100:'7.6s', gearbox:'Manual', cc:2000, km:69000, owners:2, desc:'Σπορ Coupe', img:'BRZ.png'},
+  {id:23, brand:'Dacia', model:'Duster', type:'SUV', year:2019, price:12000, country:'Romania', hp:115, fuel:'Petrol', zeroTo100:'11.0s', gearbox:'Manual', cc:1300, km:88000, owners:2, desc:'Value SUV', img:'Duster.png'},
+  {id:24, brand:'Toyota', model:'Corolla', type:'Coupe', year:2019, price:18000, country:'Japan', hp:132, fuel:'Petrol', zeroTo100:'9.3s', gearbox:'Auto', cc:1600, km:74000, owners:1, desc:'Αξιόπιστο Coupe', img:'Corolla.png'}
+];
+
+
+    function normalizeCars(list){
+      return list.map(c=>{
+        const copy={...c};
+        copy.brand = Title(copy.brand);
+        copy.model = Title(copy.model);
+        copy.type = Title((copy.type||'').trim());
+        copy.country = Title(copy.country);
+        const typeMap={Coupe:'Coupe',Sedan:'Sedan',Hatchback:'Hatchback',Suv:'SUV',Pickup:'Pickup'};
+        copy.type = typeMap[copy.type] || copy.type;
+        const isCorolla = (copy.model||'').toLowerCase()==='corolla';
+        let img=String(copy.img||'').trim();
+        if(/corrola/i.test(img)) img=img.replace(/corrola/ig,'corolla');
+        if(isCorolla && !/\.(png|jpe?g|webp)$/i.test(img)) img='corolla.png';
+        if(isCorolla) img=img.replace(/Corolla(\.(png|jpe?g|webp))$/i,'corolla$1');
+        copy.img = img;
+        copy.cc = (copy.cc===0 || copy.cc) ? copy.cc : null;
+        copy.km = (copy.km===0 || copy.km) ? copy.km : null;
+        copy.owners = (copy.owners===0 || copy.owners) ? copy.owners : null;
+        copy.score = valueScore(copy);
+        return copy;
+      });
+    }
+    function valueScore(c){
+      const year=c.year||2000, price=c.price||0, km=c.km??150000, owners=c.owners??3;
+      const age=Math.max(0,(new Date().getFullYear())-year);
+      const raw = 1-(0.40*Math.min(1,price/50000)+0.20*Math.min(1,age/15)+0.28*Math.min(1,km/200000)+0.12*Math.min(1,owners/3));
+      return Math.round(Math.max(0,Math.min(1,raw))*100)/10;
+    }
+    const CARS = normalizeCars(RAW_CARS);
+
+    const els = {
+      q:document.getElementById('q'), brand:document.getElementById('brand'), type:document.getElementById('type'),
+      yearMin:document.getElementById('yearMin'), yearMax:document.getElementById('yearMax'),
+      priceMax:document.getElementById('priceMax'), priceLabel:document.getElementById('priceLabel'),
+      ccMin:document.getElementById('ccMin'), ccMax:document.getElementById('ccMax'),
+      kmMax:document.getElementById('kmMax'), kmLabel:document.getElementById('kmLabel'),
+      ownersMax:document.getElementById('ownersMax'), countryChips:document.getElementById('countryChips'),
+      resetBtn:document.getElementById('resetBtn'), cards:document.getElementById('cards'), empty:document.getElementById('empty'),
+      count:document.getElementById('count'), sort:document.getElementById('sort'), onlyFav:document.getElementById('onlyFav'),
+      themeBtn:document.getElementById('themeBtn'), themeLabel:document.getElementById('themeLabel'),
+      loadMore:document.getElementById('loadMore'),
+      modal:document.getElementById('carModal'), mImg:document.getElementById('mImg'), mTitle:document.getElementById('mTitle'),
+      mMeta:document.getElementById('mMeta'), mHp:document.getElementById('mHp'), mFuel:document.getElementById('mFuel'),
+      mZero:document.getElementById('mZero'), mGear:document.getElementById('mGear'), mCc:document.getElementById('mCc'),
+      mKm:document.getElementById('mKm'), mOwners:document.getElementById('mOwners'), mScore:document.getElementById('mScore'),
+      mDesc:document.getElementById('mDesc'), mPrice:document.getElementById('mPrice'), mFav:document.getElementById('mFav'),
+      buyBtn:document.getElementById('buyBtn'), loanBtn:document.getElementById('loanBtn'),
+      compareBar:document.getElementById('compareBar'), compareItems:document.getElementById('compareItems'),
+      compareOpen:document.getElementById('compareOpen'), compareClear:document.getElementById('compareClear'),
+      compareModal:document.getElementById('compareModal'), compareTableWrap:document.getElementById('compareTableWrap'),
+      exportJson:document.getElementById('exportJson'), exportCsv:document.getElementById('exportCsv'),
+      avgPrice:document.getElementById('avgPrice'), medianPrice:document.getElementById('medianPrice'), yearRange:document.getElementById('yearRange'),
+      checkoutModal:document.getElementById('checkoutModal'), coTitle:document.getElementById('coTitle'), coCar:document.getElementById('coCar'),
+      coTotal:document.getElementById('coTotal'), loanBox:document.getElementById('loanBox'), coDown:document.getElementById('coDown'),
+      coRate:document.getElementById('coRate'), coMonths:document.getElementById('coMonths'), coMonthly:document.getElementById('coMonthly'),
+      coName:document.getElementById('coName'), coEmail:document.getElementById('coEmail'), coPhone:document.getElementById('coPhone'),
+      coSubmit:document.getElementById('coSubmit'), coCancel:document.getElementById('coCancel')
+    };
+
+    const state = {
+      theme: localStorage.getItem('ride_theme') || 'dark',
+      fav: new Set(JSON.parse(localStorage.getItem('ride_fav')||'[]')),
+      cmp: new Set(JSON.parse(localStorage.getItem('ride_cmp')||'[]')),
+      country: null,
+      pageSize: 24, page: 1,
+      selectedCar: null, checkoutMode:'buy'
+    };
+
+    function applyTheme(){ document.documentElement.setAttribute('data-theme', state.theme); els.themeLabel.textContent = state.theme==='dark'?'Dark':'Light'; }
+    function saveFav(){ localStorage.setItem('ride_fav', JSON.stringify([...state.fav])); }
+    function saveCmp(){ localStorage.setItem('ride_cmp', JSON.stringify([...state.cmp])); }
+    function saveTheme(){ localStorage.setItem('ride_theme', state.theme); }
+
+    function populateFilters(){
+      const brands=[...new Set(CARS.map(c=>c.brand))].sort();
+      els.brand.innerHTML='<option value="">Μάρκα</option>'+brands.map(b=>`<option value="${b}">${b}</option>`).join('');
+      const countries=[...new Set(CARS.map(c=>c.country))].sort();
+      els.countryChips.innerHTML=countries.map(c=>`<button class="chip" data-country="${c}">${c}</button>`).join('');
+      els.countryChips.addEventListener('click',e=>{
+        const btn=e.target.closest('.chip'); if(!btn)return;
+        const c=btn.dataset.country;
+        if(state.country===c){ state.country=null; btn.classList.remove('active'); }
+        else { state.country=c; [...els.countryChips.querySelectorAll('.chip')].forEach(x=>x.classList.remove('active')); btn.classList.add('active'); }
+        render(true);
+      });
+    }
+
+    function filterCars(){
+      const q=els.q.value.trim().toLowerCase();
+      const b=els.brand.value, t=els.type.value;
+      const yMin=parseInt(els.yearMin.value||'1980',10), yMax=parseInt(els.yearMax.value||'2100',10);
+      const pMax=parseInt(els.priceMax.value||'100000',10);
+      const ccMin=parseInt(els.ccMin.value||'0',10), ccMax=parseInt(els.ccMax.value||'100000',10);
+      const kmMax=parseInt(els.kmMax.value||'300000',10);
+      const ownersMax=parseInt(els.ownersMax.value||'0',10);
+      const ctry=state.country, favOnly=els.onlyFav.checked;
+
+      let data=CARS.filter(c=>{
+        if(b&&c.brand!==b) return false;
+        if(t&&c.type!==t) return false;
+        if(ctry&&c.country!==ctry) return false;
+        if(c.year<yMin||c.year>yMax) return false;
+        if(c.price>pMax) return false;
+        if(c.cc!=null && (c.cc<ccMin || c.cc>ccMax)) return false;
+        if(c.km!=null && c.km>kmMax) return false;
+        if(ownersMax>0 && c.owners!=null && c.owners>ownersMax) return false;
+        if(favOnly && !state.fav.has(c.id)) return false;
+        if(q){ const hay=`${c.brand} ${c.model} ${c.country}`.toLowerCase(); if(!hay.includes(q)) return false; }
+        return true;
+      });
+
+      switch(els.sort.value){
+        case 'price_asc': data.sort((a,b)=>a.price-b.price); break;
+        case 'price_desc': data.sort((a,b)=>b.price-a.price); break;
+        case 'year_desc': data.sort((a,b)=>b.year-a.year); break;
+        case 'year_asc': data.sort((a,b)=>a.year-b.year); break;
+        case 'score_desc': data.sort((a,b)=>b.score-a.score); break;
+      }
+      return data;
+    }
+
+    function card(c){
+      const favActive = state.fav.has(c.id) ? ' active' : '';
+      const cmpChecked = state.cmp.has(c.id) ? 'checked' : '';
+      const ownerBadge = (c.owners===1) ? `<span class="owner-badge">1ος ιδιοκτήτης</span>` : '';
+      const ccBadge = c.cc!=null ? `<span>${ccFmt(c.cc)}</span>` : '';
+      const kmBadge = c.km!=null ? `<span>${kmFmt(c.km)}</span>` : '';
+      const ownersBadge = c.owners!=null ? `<span>${c.owners} ιδ.</span>` : '';
+      return `
+      <article class="card" data-id="${c.id}">
+        ${ownerBadge}
+        <button class="fav-btn${favActive}" data-id="${c.id}">❤</button>
+        <label class="compare-check"><input type="checkbox" data-compare="${c.id}" ${cmpChecked}> Σύγκριση</label>
+        <a class="thumb" href="javascript:void(0)" aria-label="${c.brand} ${c.model}" data-open="modal">
+          <img loading="lazy" src="./Car model/${c.img}" alt="${c.brand} ${c.model}">
+        </a>
+        <div class="body">
+          <div class="meta"><span>${c.brand}</span><span>${c.type}</span><span>${c.year}</span><span>${c.country}</span>${ccBadge}${kmBadge}${ownersBadge}<span class="value-pill">Score: ${c.score}/10</span></div>
+          <div class="title">${c.brand} ${c.model}</div>
+          <div class="price">€${fmt.format(c.price)}</div>
+        </div>
+      </article>`;
+    }
+
+    function render(force=false){
+      els.priceLabel.textContent = `€${fmt.format(parseInt(els.priceMax.value||'50000',10))}`;
+      els.kmLabel.textContent = parseInt(els.kmMax.value||'300000',10)>=300000 ? '—' : (fmt.format(parseInt(els.kmMax.value||'0',10))+' km');
+
+      const list = filterCars();
+      els.count.textContent = list.length;
+      
+      if(!list.length){
+        els.avgPrice.textContent='—'; els.medianPrice.textContent='—'; els.yearRange.textContent='—';
+      } else {
+        const prices=[...list.map(x=>x.price)].sort((a,b)=>a-b);
+        const avg=Math.round(prices.reduce((s,v)=>s+v,0)/prices.length);
+        const median=prices.length%2? prices[(prices.length-1)/2] : Math.round((prices[prices.length/2 -1]+prices[prices.length/2])/2);
+        const years=list.map(x=>x.year);
+        els.avgPrice.textContent='€'+fmt.format(avg);
+        els.medianPrice.textContent='€'+fmt.format(median);
+        els.yearRange.textContent=Math.min(...years)+'–'+Math.max(...years);
+      }
+
+      if(!force){ return; }
+
+      if(!list.length){
+        els.cards.innerHTML=''; els.empty.style.display='block'; return;
+      }
+      els.empty.style.display='none';
+      els.cards.innerHTML = list.map(card).join('');
+      updateCompareBar();
+    }
+
+    function updateCompareBar(){
+      const ids=[...state.cmp];
+      const list=ids.map(id=>{
+        const c=CARS.find(x=>x.id===id); if(!c) return '';
+        return `<span class="compare-item">${c.brand} ${c.model}<button data-remove="${id}" class="pill" style="margin-left:6px">✕</button></span>`;
+      }).join('');
+      els.compareItems.innerHTML=list;
+      els.compareBar.style.display=ids.length? 'flex':'none';
+      document.getElementById('compareOpen').disabled=ids.length<2;
+    }
+
+    function openModalById(id){
+      const c=CARS.find(x=>x.id===id); if(!c)return;
+      const score=c.score;
+      document.getElementById('mImg').src=`./Car model/${c.img}`;
+      document.getElementById('mTitle').textContent=`${c.brand} ${c.model} (${c.year})`;
+      document.getElementById('mMeta').innerHTML=`<span class="pill">${c.type}</span> <span class="pill">${c.country}</span> <span class="pill">Score: ${score}/10</span>`;
+      document.getElementById('mHp').textContent=c.hp ?? '—';
+      document.getElementById('mFuel').textContent=c.fuel ?? '—';
+      document.getElementById('mZero').textContent=c.zeroTo100 ?? '—';
+      document.getElementById('mGear').textContent=c.gearbox ?? '—';
+      document.getElementById('mCc').textContent=ccFmt(c.cc);
+      document.getElementById('mKm').textContent=kmFmt(c.km);
+      document.getElementById('mOwners').textContent=ownFmt(c.owners);
+      document.getElementById('mScore').textContent=`${score}/10`;
+      document.getElementById('mDesc').textContent=c.desc||'';
+      document.getElementById('mPrice').textContent='€'+fmt.format(c.price);
+      document.getElementById('mFav').dataset.id=c.id;
+      document.getElementById('mFav').textContent = (state.fav.has(c.id)?'❤ Στα αγαπημένα':'❤ Αγαπημένο');
+      document.getElementById('carModal').showModal();
+      state.selectedCar=c;
+    }
+
+    function openCompare(){
+      const ids=[...state.cmp].slice(0,3);
+      const cars=ids.map(id=>CARS.find(c=>c.id===id)).filter(Boolean);
+      const rows=[
+        ['Μοντέλο',...cars.map(c=>`${c.brand} ${c.model}`)],
+        ['Τύπος',...cars.map(c=>c.type)],
+        ['Έτος',...cars.map(c=>c.year)],
+        ['Χώρα',...cars.map(c=>c.country)],
+        ['HP',...cars.map(c=>c.hp ?? '—')],
+        ['Καύσιμο',...cars.map(c=>c.fuel ?? '—')],
+        ['0-100',...cars.map(c=>c.zeroTo100 ?? '—')],
+        ['Κιβώτιο',...cars.map(c=>c.gearbox ?? '—')],
+        ['CC',...cars.map(c=>ccFmt(c.cc))],
+        ['KM',...cars.map(c=>kmFmt(c.km))],
+        ['Ιδιοκτήτες',...cars.map(c=>ownFmt(c.owners))],
+        ['Value Score',...cars.map(c=>c.score+'/10')],
+        ['Τιμή',...cars.map(c=>'€'+fmt.format(c.price))]
+      ];
+      const table = `<table class="compare-table"><thead><tr>${['Χαρακτηριστικό', ...cars.map((_,i)=>`#${i+1}`)].map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${rows.map(r=>`<tr>${r.map((c,i)=>`<${i? 'td':'th'}>${c}</${i? 'td':'th'}>`).join('')}</tr>`).join('')}</tbody></table>`;
+      document.getElementById('compareTableWrap').innerHTML=table;
+      document.getElementById('compareModal').showModal();
+    }
+
+    function calcMonthly(total, down, annualRate, months){
+      const principal=Math.max(0,total-down); const i=(annualRate/100)/12;
+      if(months<=0||principal<=0) return 0; if(i===0) return Math.round(principal/months);
+      const x=Math.pow(1+i,months); return Math.round(principal*(i*x)/(x-1));
+    }
+    function refreshLoan(){
+      if(!state.selectedCar) return;
+      const total=state.selectedCar.price;
+      const down=parseFloat(document.getElementById('coDown').value||0);
+      const rate=parseFloat(document.getElementById('coRate').value||0);
+      const months=parseInt(document.getElementById('coMonths').value||0,10);
+      document.getElementById('coMonthly').value='€'+fmt.format(calcMonthly(total,down,rate,months));
+    }
+    function openCheckout(mode){
+      if(!state.selectedCar) return;
+      state.checkoutMode=mode;
+      const c=state.selectedCar;
+      document.getElementById('coTitle').textContent = mode==='loan' ? 'Αίτηση Δανείου' : 'Αγορά οχήματος';
+      document.getElementById('coCar').innerHTML = `<span class="pill">${c.brand}</span> <span class="pill">${c.model}</span> <span class="pill">${c.year}</span>`;
+      document.getElementById('coTotal').textContent = '€'+fmt.format(c.price);
+      document.getElementById('loanBox').style.display = mode==='loan' ? 'block' : 'none';
+      if(mode==='loan'){ document.getElementById('coMonths').value=72; document.getElementById('coDown').value=Math.floor(c.price*0.20); document.getElementById('coRate').value=6.5; refreshLoan(); }
+      document.getElementById('checkoutModal').showModal();
+    }
+    function makeOfferHTML(data){
+      const date = new Date().toLocaleDateString('el-GR');
+      const title = data.mode==='loan' ? 'ΠΡΟΣΦΟΡΑ ΔΑΝΕΙΟΥ' : 'ΠΡΟΣΦΟΡΑ ΑΓΟΡΑΣ';
+      const loanRows = data.mode==='loan' ? `
+        <tr><td>Προκαταβολή</td><td>€${fmt.format(data.down)}</td></tr>
+        <tr><td>Επιτόκιο</td><td>${data.rate}%</td></tr>
+        <tr><td>Διάρκεια</td><td>${data.months} μήνες</td></tr>
+        <tr><td>Ενδεικτική μηνιαία δόση</td><td>${data.monthly}</td></tr>` : '';
+      return `<!DOCTYPE html><html lang="el"><head><meta charset="UTF-8"><title>${title}</title>
+      <style>body{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;padding:24px;color:#111}
+      h1{margin:0 0 12px}.muted{color:#555}table{width:100%;border-collapse:collapse;margin-top:12px}
+      td,th{border:1px solid #ddd;padding:8px;text-align:left}.right{text-align:right}.total{font-weight:800}.brand{font-weight:700}</style></head>
+      <body><h1>${title}</h1><div class="muted">Ημερομηνία: ${date}</div><h3>Στοιχεία πελάτη</h3>
+      <table><tr><td>Ονοματεπώνυμο</td><td>${data.name}</td></tr><tr><td>Email</td><td>${data.email}</td></tr><tr><td>Τηλέφωνο</td><td>${data.phone}</td></tr></table>
+      <h3>Όχημα</h3><table><tr><td>Μοντέλο</td><td class="brand">${data.car}</td></tr><tr><td>Τιμή</td><td>€${fmt.format(data.price)}</td></tr>${loanRows}
+      <tr><td class="total">Σύνολο</td><td class="total right">€${fmt.format(data.price)}</td></tr></table>
+      <p class="muted">Η προσφορά είναι ενδεικτική και δεν αποτελεί δέσμευση χρηματοδότησης. Ισχύει για 10 ημέρες.</p>
+      <script>window.onload=()=>{setTimeout(()=>window.print(),300);};<\/script></body></html>`;
+    }
+
+    function updateCompareHandlers(){
+      document.getElementById('compareItems').addEventListener('click',e=>{
+        const btn=e.target.closest('button[data-remove]'); if(!btn) return;
+        const id=parseInt(btn.dataset.remove,10); state.cmp.delete(id); saveCmp(); updateCompareBar(); render(true);
+      });
+      document.getElementById('compareOpen').addEventListener('click',openCompare);
+      document.getElementById('compareClear').addEventListener('click',()=>{ state.cmp.clear(); saveCmp(); updateCompareBar(); render(true); });
+    }
+
+    function bindUI(){
+      document.getElementById('themeBtn').addEventListener('click',()=>{ state.theme = state.theme==='dark'?'light':'dark'; applyTheme(); saveTheme(); });
+
+      const debounce = (fn,ms=250)=>{ let t; return (...a)=>{ clearTimeout(t); t=setTimeout(()=>fn(...a),ms); } };
+      document.getElementById('q').addEventListener('input', debounce(()=>render(true),200));
+      ['brand','type','yearMin','yearMax','priceMax','ccMin','ccMax','kmMax','ownersMax','sort'].forEach(id=>{
+        const el=document.getElementById(id); el && el.addEventListener('input', ()=>render(true));
+      });
+      document.getElementById('onlyFav').addEventListener('change', ()=>render(true));
+      document.getElementById('resetBtn').addEventListener('click', ()=>{
+        els.q.value=''; els.brand.value=''; els.type.value=''; els.yearMin.value=''; els.yearMax.value='';
+        els.priceMax.value=50000; els.ccMin.value=''; els.ccMax.value=''; els.kmMax.value=300000; els.kmLabel.textContent='—';
+        els.ownersMax.value=''; els.sort.value=''; els.onlyFav.checked=false; state.country=null;
+        [...document.querySelectorAll('#countryChips .chip')].forEach(x=>x.classList.remove('active'));
+        render(true);
+      });
+      document.getElementById('cards').addEventListener('click',(e)=>{
+        const fav=e.target.closest('.fav-btn');
+        if(fav){ const id=parseInt(fav.dataset.id,10); if(state.fav.has(id)) state.fav.delete(id); else state.fav.add(id); saveFav(); fav.classList.toggle('active'); return; }
+        const article=e.target.closest('.card'); if(!article) return;
+        const id=parseInt(article.dataset.id,10); if(!id) return; openModalById(id);
+      });
+      document.getElementById('cards').addEventListener('change',(e)=>{
+        const chk=e.target.closest('input[data-compare]'); if(!chk) return;
+        const id=parseInt(chk.dataset.compare,10);
+        if(chk.checked){ if(state.cmp.size>=3){ alert('Μέχρι 3 οχήματα στη σύγκριση.'); chk.checked=false; return; } state.cmp.add(id); }
+        else { state.cmp.delete(id); }
+        saveCmp(); updateCompareBar();
+      });
+
+      document.getElementById('mFav').addEventListener('click', ()=>{
+        const id = parseInt(document.getElementById('mFav').dataset.id||'0',10); if(!id) return;
+        if(state.fav.has(id)) state.fav.delete(id); else state.fav.add(id); saveFav();
+        document.getElementById('mFav').textContent = state.fav.has(id)?'❤ Στα αγαπημένα':'❤ Αγαπημένο';
+      });
+      document.getElementById('buyBtn').addEventListener('click', ()=> openCheckout('buy'));
+      document.getElementById('loanBtn').addEventListener('click', ()=> openCheckout('loan'));
+      ['coDown','coRate','coMonths'].forEach(id=>{ const el=document.getElementById(id); el && el.addEventListener('input', refreshLoan); });
+      document.getElementById('coCancel').addEventListener('click', ()=> document.getElementById('checkoutModal').close());
+      document.getElementById('checkoutForm').addEventListener('submit', (e)=>{
+        e.preventDefault();
+        const phoneOk = /^(\+30)?\s*6\d{8}$/.test(document.getElementById('coPhone').value.trim());
+        if(!phoneOk){ alert('Δώσε έγκυρο κινητό (π.χ. 69xxxxxxxx ή +3069xxxxxxxx).'); return; }
+        const c = state.selectedCar;
+        const payload = { mode:'buy', car:`${c.brand} ${c.model} ${c.year}`, price:c.price,
+          name:document.getElementById('coName').value.trim(),
+          email:document.getElementById('coEmail').value.trim(),
+          phone:document.getElementById('coPhone').value.trim(), down:0, rate:0, months:0, monthly:null };
+        const w=window.open('', '_blank'); w.document.write(makeOfferHTML(payload)); w.document.close();
+        document.getElementById('checkoutModal').close();
+      });
+
+      updateCompareHandlers();
+    }
+
+    function init(){
+      applyTheme();
+      populateFilters();
+      const all=CARS; 
+      const prices=[...all.map(x=>x.price)].sort((a,b)=>a-b);
+      const avg=Math.round(prices.reduce((s,v)=>s+v,0)/prices.length);
+      const median=prices.length%2? prices[(prices.length-1)/2] : Math.round((prices[prices.length/2 -1]+prices[prices.length/2])/2);
+      const years=all.map(x=>x.year);
+      els.avgPrice.textContent='€'+fmt.format(avg);
+      els.medianPrice.textContent='€'+fmt.format(median);
+      els.yearRange.textContent=Math.min(...years)+'–'+Math.max(...years);
+  
+      bindUI();
+ 
+      updateCompareBar();
+    }
+
+    if(document.readyState==='loading'){ document.addEventListener('DOMContentLoaded', init); } else { init(); }
+  </script>
+</body>
+</html>
